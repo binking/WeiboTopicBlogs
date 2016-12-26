@@ -46,8 +46,14 @@ class WeiboBlogsSpider(WeiboSpider):
             time_div = div.find('a', attrs={'node-type': 'feed_list_item_date'})
             feed_info['time'] = time_div['title'] if time_div else ''
             feed_info['weibo_url'] = time_div['href'] if time_div else ''
-            text_div =  div.find('div', attrs={'node-type': 'feed_list_content'})
-            feed_info['text'] = text_div.text if text_div else ''
+            text_a =  div.find('div', attrs={'node-type': 'feed_list_content'})
+            feed_info['text'] = text_a.text if text_a else ''
+            device_a = div.find('a', attrs={'action-type': 'app_source'})
+            feed_info['device'] = device_a.text if device_a else ''
+            forward_a = div.find(attrs={'node-type': 'forward_btn_text'})
+            feed_info['forward'] = forward.text if forward_a else 0
+            
+
 
     
 
