@@ -23,7 +23,7 @@ class WeiboMidSpider(WeiboSpider):
         if len(self.page) < 20000:
             return mid
         mid_rexp = re.findall(r'mid=(\d{16})', self.page)
-        import ipdb; ipdb.set_trace()
+        # import ipdb; ipdb.set_trace()
         if mid_rexp:
             mid_group = Counter(mid_rexp)
             print mid_group
