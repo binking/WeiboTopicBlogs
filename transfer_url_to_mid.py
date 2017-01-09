@@ -18,7 +18,18 @@ from zc_spider.weibo_utils import RedisException
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
+if os.environ.get('SPIDER_ENV') == 'test':
+    print "*"*10, "Run in Test environment"
+    USED_DATABASE = OUTER_MYSQL
+    USED_REDIS = LOCAL_REDIS
+elif 'centos' in os.environ.get('HOSTNAME'): 
+    print "*"*10, "Run in Qcloud environment"
+    USED_DATABASE = QCLOUD_MYSQL
+    USED_REDIS = QCLOUD_REDIS
+else:
+    raise Exception("Unknown Environment, Check it now...")
 
+    
 def generate(cache):
     """
     Producer for urls and topics, Consummer for topics
