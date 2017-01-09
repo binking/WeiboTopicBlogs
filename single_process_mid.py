@@ -48,7 +48,7 @@ def single_process_mid():
         status = spider.gen_html_source()
         mid = spider.get_weibo_mid()
         if len(mid) == 16:
-            dao.update_url_to_mid(mid)
+            dao.update_url_to_mid(mid, job)
 
 
 if __name__=="__main__":

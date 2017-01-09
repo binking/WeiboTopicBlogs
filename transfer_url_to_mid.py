@@ -85,7 +85,7 @@ def write_data(cache):
         except Exception as e:  # won't let you died
             error_count += 1
             print 'Failed to write result: ', mid
-            cache.rpush(WEIBO_MID, mid)
+            cache.rpush(WEIBO_MID, mid, job)
 
 
 def add_jobs(cache):
