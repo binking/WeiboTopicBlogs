@@ -35,6 +35,7 @@ else:
 
 
 def single_process_mid():
+    cache = redis.StrictRedis(**USED_REDIS)
     dao = WeiboMidWriter(USED_DATABASE)
     for _ in range(10):
         job = cache.blpop(WEIBO_URL, 0)[1]
