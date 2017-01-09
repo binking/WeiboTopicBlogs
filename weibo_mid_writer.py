@@ -30,7 +30,7 @@ class WeiboMidWriter(DBAccesor):
             SELECT weibo_url FROM Weibo 
             WHERE weibo_mid IS NULL
             ORDER BY id
-            LIMIT 10000
+            LIMIT 10
         """
         conn = self.connect_database()
         cursor = conn.cursor()

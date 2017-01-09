@@ -82,9 +82,9 @@ def run_all_worker():
     r = redis.StrictRedis(**USED_REDIS)
     add_pool = mp.Pool(processes=1,
         initializer=(add_jobs, initargs=(r, )))
-    job_pool = mp.Pool(processes=8,
+    job_pool = mp.Pool(processes=1,
         initializer=generate, initargs=(r, ))
-    result_pool = mp.Pool(processes=4, 
+    result_pool = mp.Pool(processes=1, 
         initializer=write_data, initargs=(r, ))
 
     cp = mp.current_process()
