@@ -57,7 +57,9 @@ def generate(cache):
             status = spider.gen_html_source()
             mid = spider.get_weibo_mid()
             if len(mid) == 16:
-                cache.rpush(WEIBO_MID, mid)
+                print "%s --> %s" % (job, mid)
+                res = "%s||%s" % (mid, job)
+                cache.rpush(WEIBO_MID, res)
         except RedisException as e:
             print str(e); break
         except Exception as e:  # no matter what was raised, cannot let process died
@@ -79,13 +81,14 @@ def write_data(cache):
             print '>'*10, 'Exceed 1000 times of write errors', '<'*10
             break
         print dt.now().strftime("%Y-%m-%d %H:%M:%S"), "Update MID Process pid is %d" % (cp.pid)
-        mid = cache.blpop(WEIBO_MID, 0)[1]
+        res = cache.blpop(WEIBO_MID, 0)[1]
         try:
-            dao.update_url_to_mid(mid)
+            mid, url = res.split("||")
+            dao.update_url_to_mid(mid, url)
         except Exception as e:  # won't let you died
             error_count += 1
             print 'Failed to write result: ', mid
-            cache.rpush(WEIBO_MID, mid, job)
+            cache.rpush(WEIBO_MID, res)
 
 
 def add_jobs(cache):
