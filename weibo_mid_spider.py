@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup as bs
 from datetime import datetime as dt
 from zc_spider.weibo_spider import WeiboSpider
 from zc_spider.weibo_utils import catch_parse_error
-action-type
+
 
 class WeiboMidSpider(WeiboSpider):
     def __init__(self, start_url, account, password, timeout=10, delay=1, proxy={}):
