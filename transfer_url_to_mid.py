@@ -108,6 +108,12 @@ def add_jobs(cache):
 
 def run_all_worker():
     r = redis.StrictRedis(**USED_REDIS)
+    if not r.llen(WEIBO_URL):
+        add_jobs(r)
+        print "Add jobs DONE, and I quit..."
+        return 0
+    else:
+        print "Redis has %d records in cache" % r.llen(WEIBO_URL)
     add_pool = mp.Pool(processes=1,
         initializer=add_jobs, initargs=(r, ))
     job_pool = mp.Pool(processes=8,

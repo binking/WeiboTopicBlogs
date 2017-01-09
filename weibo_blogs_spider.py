@@ -12,7 +12,7 @@ from template.weibo_utils import catch_parse_error
 # 253A23055763d3d983819d66869c27ae8da86cb176
 # http://m.weibo.cn/container/getIndex?
     # containerid=230530{topic_id}
-    # __timeline__mobile_info_-_pageapp%{unknown_id}
+    # __timeline__mobile_info_-_pageapp%{unknown_id}  (Also ignore)
     # &uid=5983388253 (Ignore)
 # http://weibo.com/p/{topic_id}
 # no content : 咦？暂时没有内容哦，稍后再来试试吧~
