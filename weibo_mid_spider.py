@@ -25,6 +25,5 @@ class WeiboMidSpider(WeiboSpider):
         mid_rexp = re.findall(r'mid=(\d{16})', self.page)
         if mid_rexp:
             mid_group = Counter(mid_rexp)
-            print mid_group
             return mid_group.most_common()[0][0]
         return mid
