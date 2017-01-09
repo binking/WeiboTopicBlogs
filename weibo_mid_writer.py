@@ -35,5 +35,5 @@ class WeiboMidWriter(DBAccesor):
         conn = self.connect_database()
         cursor = conn.cursor()
         cursor.execute(select_sql)
-        for uri in cursor.fecth_all():
+        for uri in cursor.fetchall():
             yield uri[0]
