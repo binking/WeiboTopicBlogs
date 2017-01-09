@@ -1,6 +1,7 @@
 #-*- coding: utf-8 -*-
 #--------  话题48992  爬取一个话题下的所有微博  --------
 import re
+import os
 import sys
 import time
 import redis
@@ -29,7 +30,7 @@ elif 'centos' in os.environ.get('HOSTNAME'):
 else:
     raise Exception("Unknown Environment, Check it now...")
 
-    
+
 def generate(cache):
     """
     Producer for urls and topics, Consummer for topics
