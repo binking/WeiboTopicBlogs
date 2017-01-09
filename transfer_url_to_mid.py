@@ -56,14 +56,14 @@ def generate(cache):
             if error_count > 999:
                 print '>'*10, 'Exceed 1000 times of GEN errors', '<'*10
                 break
-            # all_account = cache.hkeys(MANUAL_COOKIES)
-            all_account = test_curls.keys()
+            all_account = cache.hkeys(MANUAL_COOKIES)
+            # all_account = test_curls.keys()
             account = random.choice(all_account)
             spider = WeiboMidSpider(job, account, WEIBO_ACCOUNT_PASSWD, timeout=20)
             spider.use_abuyun_proxy()
             spider.add_request_header()
-            # spider.use_cookie_from_curl(cache.hget(MANUAL_COOKIES, account))
-            spider.use_cookie_from_curl(test_curls.get(account))
+            spider.use_cookie_from_curl(cache.hget(MANUAL_COOKIES, account))
+            # spider.use_cookie_from_curl(test_curls.get(account))
             status = spider.gen_html_source()
             mid = spider.get_weibo_mid()
             if len(mid) == 16:
