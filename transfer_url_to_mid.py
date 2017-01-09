@@ -73,7 +73,7 @@ def write_data(cache):
     """
     error_count = 0
     cp = mp.current_process()
-    dao = WeiboRelationWriter(USED_DATABASE)
+    dao = WeiboMidWriter(USED_DATABASE)
     while True:
         if error_count > 999:
             print '>'*10, 'Exceed 1000 times of write errors', '<'*10
@@ -89,7 +89,7 @@ def write_data(cache):
 
 
 def add_jobs(cache):
-    dao = WeiboRelationWriter(USED_DATABASE)
+    dao = WeiboMidWriter(USED_DATABASE)
     for url in dao.read_new_user_from_db():
         cache.rpush(WEIBO_URL, url)
 
