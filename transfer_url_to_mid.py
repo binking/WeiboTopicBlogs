@@ -10,8 +10,11 @@ import traceback
 import multiprocessing as mp
 from datetime import datetime as dt
 from zc_spider.weibo_config import (
-    MANUAL_COOKIES, WEIBO_ACCOUNT_PASSWD, 
-    LOCAL_REDIS, WEIBO_URL, WEIBO_MID
+    MANUAL_COOKIES,
+    WEIBO_ACCOUNT_PASSWD,
+    WEIBO_URL, WEIBO_MID,
+    QCLOUD_MYSQL, OUTER_MYSQL,
+    LOCAL_REDIS, QCLOUD_REDIS
 )
 from weibo_mid_spider import WeiboMidSpider
 from weibo_mid_writer import WeiboMidWriter
