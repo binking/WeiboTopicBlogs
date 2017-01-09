@@ -15,7 +15,7 @@ class WeiboMidWriter(DBAccesor):
     @database_error_hunter
     def update_url_to_mid(self, mid, uri):
         update_mid_sql = """
-            UPDATE Weibo SET mid=%s WHERE weibo_url=%s
+            UPDATE Weibo SET weibo_mid=%s WHERE weibo_url=%s
         """
         conn = self.connect_database()
         cursor = conn.cursor()
