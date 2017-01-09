@@ -37,3 +37,19 @@ class WeiboUserWriter(DBAccesor):
 
     @database_error_hunter
     def read_new_user_from_db(self):
+        select_sql = """
+            SELECT topic_url, createdate FROM topicinfo t
+            -- TopicInfo 没有爬过的Topic数据
+            WHERE 1 = 1 AND createdate > date_sub(NOW(), INTERVAL '2' DAY )
+            -- AND theme LIKE '新浪微博_热门话题%'
+            AND not exists (
+            SELECT * FROM topicweiborelation 
+            WHERE topic_url = t.topic_url)
+            UNION  -- TopicInfo 微博数量太少的话题
+            SELECT t.topic_url, max(t.createdate) AS createdate 
+            FROM topicinfo t, topicweiborelation tw
+            WHERE t.topic_url = tw.topic_url
+            AND createdate > date_sub(NOW(), INTERVAL '7' DAY )
+            GROUP BY topic_url
+            HAVING count(*) < 20 
+        """
