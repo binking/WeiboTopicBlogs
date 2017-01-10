@@ -81,7 +81,7 @@ class WeiboBlogsSpider(WeiboSpider):
             page_info = data['cardlistInfo']
         except:
             page_info = data['pageInfo']
-        max_page = page_info.get('total', 0) / 10
+        max_page = int(page_info.get('total', 0)) / 10
         if max_page < 1:
             print "No micro blog V1 "
             return res
