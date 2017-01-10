@@ -87,6 +87,7 @@ def generate_info(cache):
             res = spider.parse_tweet_list(cache)
             if len(res) == 2:
                 cache.rpush(WEIBO_INFO_CACHE, pickle.dumps(res))
+            time.sleep(1)
         except ValueError as e:
             print e  # print e.message
             error_count += 1
