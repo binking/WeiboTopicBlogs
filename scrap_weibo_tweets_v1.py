@@ -71,15 +71,14 @@ def generate_info(cache):
         job = cache.blpop(WEIBO_URLS_CACHE, 0)[1]
         xhr_url = xhrize_topic_url(job)
         try:
-            # all_account = cache.hkeys(MANUAL_COOKIES)
-            all_account = test_curls.keys()
+            all_account = cache.hkeys(MANUAL_COOKIES)
+            # all_account = test_curls.keys()
             account = random.choice(all_account)
             spider = WeiboBlogsSpider(xhr_url, account, WEIBO_ACCOUNT_PASSWD, timeout=20, delay=3)
             spider.use_abuyun_proxy()
             spider.add_request_header()
-            print spider.url
-            # spider.use_cookie_from_curl(cache.hget(MANUAL_COOKIES, account))
-            spider.use_cookie_from_curl(test_curls.get(account))
+            spider.use_cookie_from_curl(cache.hget(MANUAL_COOKIES, account))
+            # spider.use_cookie_from_curl(test_curls.get(account))
             status = spider.gen_html_source(raw=True)
             if status == 404:
                 continue
@@ -93,12 +92,11 @@ def generate_info(cache):
             error_count += 1
             cache.rpush(WEIBO_URLS_CACHE, job)
         except RedisException as e:
-            print str(e)
-            break
+            print str(e); break
         except Exception as e:  # no matter what was raised, cannot let process died
             traceback.print_exc()
             error_count += 1
-            print 'Faild to parse job: ', job
+            print 'Failed to parse job: ', job
             cache.rpush(WEIBO_URLS_CACHE, job) # put job back
         
 
