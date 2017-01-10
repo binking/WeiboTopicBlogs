@@ -43,7 +43,7 @@ else:
 #     'yunluao954128@163.com': "curl 'http://weibo.com/aj/v6/comment/big?ajwvr=6&id=4060589758164164&from=singleWeiBo&__rnd=1483860156874' -H 'Cookie: ALF=1486452150; SUB=_2A251dZjmDeTxGeNH41EQ9S7KyzuIHXVWmTiurDV8PUJbkNBeLXLXkW2dAsjR9BS8DcMH9RC0zEMhjOWtIg..; SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9WhW4gbPHppK4xd7wL19.o-p5JpX5oz75NHD95Qf1Kn0eK-7So5NWs4DqcjdSh-0eoMR1K5Ei--NiK.Xi-2Ri--ciKnRi-zN; _T_WM=e710d0db2aa512f4e4b0d1540d535545; YF-Page-G0=0acee381afd48776ab7a56bd67c2e7ac; YF-Ugrow-G0=57484c7c1ded49566c905773d5d00f82' -H 'Accept-Encoding: gzip, deflate, sdch' -H 'Accept-Language: zh-CN,zh;q=0.8' -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36' -H 'Content-Type: application/x-www-form-urlencoded' -H 'Accept: */*' -H 'Referer: http://weibo.com/1767076672/EpqdpyfS4?type=comment' -H 'X-Requested-With: XMLHttpRequest' -H 'Connection: keep-alive' --compressed",
 # }
 test_curls = {
-    "binking": "curl 'http://m.weibo.cn/container/getIndex?containerid=1008089e50aa0184d42b2f4dde38deaf43cd4b' -H 'Accept-Encoding: gzip, deflate, sdch' -H 'Accept-Language: zh-CN,zh;q=0.8' -H 'Upgrade-Insecure-Requests: 1' -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8' -H 'Cookie: _T_WM=3ba14b38ec55ecdada6c00655da0e0be; H5_INDEX=2; H5_INDEX_TITLE=%E6%97%A0%E6%88%91%E4%B9%8B%E9%98%B3%E6%98%8E%E5%B0%91%E5%B9%B4; browser=d2VpYm9mYXhpYW4%3D; ALF=1486609618; SCF=Ap11mp4UEZs9ZcoafG0iD1wVDGjdyuPuLY8BpwtpvSEEAtegq1jcG9Td1LMOG9cCKsOs5-Uof6Rnu5HD-L_i7Z0.; SUB=_2A251cD-_DeTxGeNG71EX8ybKwj6IHXVWm0H3rDV6PUJbktBeLXnykW1xTV4f5mp7D7Qeomfo4czAqxGHog..; SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9W5HA7SsRPVzLQ_q6ucc2n_c5JpX5o2p5NHD95Qf1hB0SoeRSo.EWs4Dqcj6i--ciK.Ni-27i--ciKnRiK.pi--Xi-z4iKyFi--4iK.Ri-z0i--ciK.RiKy8i--fi-z7iK.pi--fi-z4i-zX; SUHB=0y0JooghY76aiR; SSOLoginState=1484017647; M_WEIBOCN_PARAMS=luicode%3D10000011%26lfid%3D1073039e50aa0184d42b2f4dde38deaf43cd4b_-_ext_intro%26fid%3D1008089e50aa0184d42b2f4dde38deaf43cd4b%26uicode%3D10000011' -H 'Connection: keep-alive' --compressed",
+    "cai93994098@163.com": "curl 'http://m.weibo.cn/container/getIndex?containerid=100808a81547b5ff5eea0b306ca82ec996fe15' -H 'Accept-Encoding: gzip, deflate, sdch' -H 'Accept-Language: zh-CN,zh;q=0.8' -H 'Upgrade-Insecure-Requests: 1' -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8' -H 'Cache-Control: max-age=0' -H 'Cookie: _T_WM=de0be18102454ab8a6358fb1d118dbd4; SUB=_2A251cMzzDeRxGeNH41EQ8yfMyDiIHXVWmtS7rDV6PUJbkdBeLWzFkW1II29bscishjheZDkMsEnvb2lCng..; SUHB=0jB4p9SVGEJHBc; SCF=AhJhem3wgziwA_Rc7bKNMw0GbCgyvKFE1IoNUITYZStmLxa-Al5TRHXw5VzToFL4ltRJ7D6kYziKWf10lX4XMHI.; SSOLoginState=1484045475; M_WEIBOCN_PARAMS=featurecode%3D20000180%26luicode%3D10000011%26lfid%3D1008081d0532810db261f656b10c03c211ade4%26fid%3D100808a81547b5ff5eea0b306ca82ec996fe15%26uicode%3D10000011' -H 'Connection: keep-alive' --compressed",
 }
 
 
@@ -87,7 +87,6 @@ def generate_info(cache):
             res = spider.parse_tweet_list(cache)
             if len(res) == 2:
                 cache.rpush(WEIBO_INFO_CACHE, pickle.dumps(res))
-            time.sleep(1)
         except ValueError as e:
             print e  # print e.message
             error_count += 1
@@ -99,6 +98,7 @@ def generate_info(cache):
             error_count += 1
             print 'Failed to parse job: ', job
             cache.rpush(WEIBO_URLS_CACHE, job) # put job back
+        time.sleep(2)
         
 
 def write_data(cache):
