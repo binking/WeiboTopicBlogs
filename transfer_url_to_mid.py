@@ -133,7 +133,7 @@ def run_all_worker():
         print dt.now().strftime("%Y-%m-%d %H:%M:%S"), "Exception raise in run all Work"
     except KeyboardInterrupt:
         print dt.now().strftime("%Y-%m-%d %H:%M:%S"), "Interrupted by you and quit in force, but save the results"
-        print "+"*10, "jobs' length is ", r.llen(WEIBO_URLO) 
+        print "+"*10, "jobs' length is ", r.llen(WEIBO_URL) 
         print "+"*10, "results' length is ", r.llen(WEIBO_MID)
 
 

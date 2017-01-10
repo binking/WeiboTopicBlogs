@@ -2,10 +2,10 @@
 #--------  话题48992  爬取一个话题下的所有微博  --------
 import traceback
 from datetime import datetime as dt
-from template.weibo_writer import DBAccesor, database_error_hunter
+from zc_spider.weibo_writer import DBAccesor, database_error_hunter
 
 
-class WeiboBlogsWrite(DBAccesor):
+class WeiboBlogsWriter(DBAccesor):
 
     def __init__(self, db_dict):
         DBAccesor.__init__(self, db_dict)
@@ -14,33 +14,74 @@ class WeiboBlogsWrite(DBAccesor):
         return DBAccesor.connect_database(self)
 
     @database_error_hunter
-    def insert_blogs_into_db(self, two_info):
-        uri = info_dict['uri']; fullpath = uri
-        realpath = uri; middle = 'second'; bucketName = '微博话题'
+    def insert_blogs_into_db(self, mblogs):
+        middle = 'second'; bucketName = '微博话题'
         theme = '新浪微博_话题python'
         insert_blog_sql = """
             INSERT INTO Weibo (fullpath, realpath, theme,  middle, 
-            createdate, pageno, bucketName,uri, 
+            createdate, bucketName, uri, weibo_mid,
             weibo_author_nickname, weibo_author_id, weibo_author_url, 
             weibo_author_portrait, weibo_url, weibo_content, sub_date, device, 
             weibo_forward_num, weibo_comment_num, weibo_thumb_up_num, topic_url)
             SELECT %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s 
             FROM DUAL WHERE NOT EXISTS(
-            SELECT * FROM Weibo where weibo_url = %s 
-            OR weibo_mid = %s)
+            SELECT * FROM Weibo where weibo_url = %s)
         """
         conn = self.connect_database()
         cursor = conn.cursor()
-        if cursor.execute(insert_new_user_sql,(
+        for mblog in mblogs:
+            topic_url = mblog['topic_url']
+            if cursor.execute(insert_blog_sql,(
+                topic_url, topic_url, theme, middle, mblog['date'],
+                bucketName, topic_url, mblog['mid'], mblog['u_name'],
+                mblog['u_id'], mblog['u_url'], mblog['u_img'],
+                mblog['url'], mblog['text'], mblog['sub_date'],
+                mblog.get('device', ''), mblog['reposts'], mblog['comments'], 
+                mblog['likes'],topic_url, mblog['url']
                 )):
-            print '$'*10, "1. Insert %s SUCCEED." % uri
+                print '$'*10, "1. Insert MBlog %s SUCCEED." % mblog['url']
         conn.commit(); cursor.close(); conn.close()
         return True
 
     @database_error_hunter
+    def update_user_info(self, users):
+        """
+        Update users' information, cuz no label
+        """
+        update_user_sql = """
+            UPDATE WeiboUser
+            SET nickname=%s, focus_num=%s, fans_num=%s, weibo_num=%s, weibo_user_card=%s
+            WHERE weibo_user_url = %s
+        """
+        conn = self.connect_database()
+        cursor = conn.cursor()
+        for user in users:
+            if cursor.execute(update_user_sql,(
+                user['name'], user['follows'], user['fans'], user['blogs'], user['usercard'],
+                'http://weibo.com/' + user['usercard']
+            )):
+                print '$'*10, "2. Update User %s SUCCEED." % user['name']
+        conn.commit(); cursor.close(); conn.close()
+        return True
+
+    @database_error_hunter
+    def update_topic_info(self, topic):
+        update_info_sql = """
+            UPDATE topicinfo 
+            set title=%s, introduction=%s, read_num=%s, read_num_dec=%s, discussion_num=%s, fans_num=%s, topic_type=%s, topic_region=%s, label=%s, topic_url=%s, logo_img_url=%s
+            WHERE topic_url=%s
+        """
+        conn = self.connect_database()
+        cursor = conn.cursor()
+        if cursor.execute(update_info_sql,(
+            )):
+            print '$'*10, "3. Update Topic %s SUCCEED." % topic['topic_url']
+            conn.commit(); cursor.close(); conn.close()
+
+    @database_error_hunter
     def read_urls_from_db(self):
         select_sql = """
-            SELECT DISTINCT topic_url FROM topicinfo t
+            SELECT DISTINCT topic_url, createdate FROM topicinfo t
             -- TopicInfo 没有爬过的Topic数据
             WHERE 1 = 1 AND createdate > date_sub(NOW(), INTERVAL '2' DAY )
             -- AND theme LIKE '新浪微博_热门话题%'
