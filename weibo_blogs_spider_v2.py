@@ -5,6 +5,7 @@ import re
 import json
 import math
 import requests
+from datetime import timedelta
 from bs4 import BeautifulSoup as bs
 from datetime import datetime as dt
 from zc_spider.weibo_spider import WeiboSpider
@@ -31,11 +32,21 @@ from zc_spider.weibo_config import WEIBO_URLS_CACHE
 
 def extract_content(html):
     parser = bs(html, 'html.parser')
+    # temp = re.sub(r'@.+[ :]|#.+#', '', parser.text)
+    [a.extract() for a in parser(('a', 'span'))]
     return parser.text
 
+def extract_user_cn_url(url):
+    pos = url.find('?')
+    if pos>0:
+        return url[:pos]
+    return url
 
 def format_publish_date(date):
-    if u"今天" in date:  # today
+    if u"分钟前" in date:
+        temp = dt.now() - timedelta(minutes=int(date[:-3]))
+        return temp.strftime("%Y-%m-%d %H:%M:%S") 
+    elif u"今天" in date:  # today
         return dt.now().strftime("%Y-%m-%d")+' '+date[3:]
     elif len(date.split('-')) == 2: # this year
         return dt.now().strftime("%Y")+'-'+date
@@ -100,14 +111,15 @@ class WeiboBlogsSpider(WeiboSpider):
                 u_info['rank'] = user['urank']
                 u_info['type'] = user['mbtype']
                 u_info['usercard'] = str(user['id'])
-                u_info['cn_url'] = user['profile_url']
+                u_info['cn_url'] = extract_user_cn_url(user['profile_url'])
                 u_info['desc'] = user.get('description', '')
                 # format blog's info
+                m_info['xhr_url'] = self.url
                 m_info['reposts'] = mblog['reposts_count']
                 m_info['text'] = extract_content(mblog['text'])
                 m_info['mid'] = mblog['id']
                 m_info['u_name'] = user['screen_name']
-                m_info['u_url'] = user['profile_url']
+                m_info['u_url'] = extract_user_cn_url(user['profile_url'])
                 m_info['u_id'] = user['id']
                 m_info['u_img'] = user['profile_image_url']
                 m_info['url'] = 'http://weibo.com/%s/%s' % (user['id'], mblog['bid'])
@@ -118,12 +130,12 @@ class WeiboBlogsSpider(WeiboSpider):
                 m_info['likes'] = mblog['attitudes_count']
                 m_info['comments'] = mblog['comments_count']
                 # display
-                print "="*60
-                for k, v in u_info.items():
-                    print k, v
-                print "-"*60
-                for k, v in m_info.items():
-                    print k, v
+                # print "="*60
+                # for k, v in u_info.items():
+                #     print k, v
+                # print "-"*60
+                # for k, v in m_info.items():
+                #     print k, v
                 tweet_list.append(m_info)
                 user_list.append(u_info)
         return { "blogs": tweet_list, "users": user_list }

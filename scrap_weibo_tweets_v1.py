@@ -134,8 +134,10 @@ def add_jobs(target):
     dao = WeiboBlogsWriter(USED_DATABASE)
     for job in dao.read_urls_from_db():  # iterate
         todo += 1
-        target.rpush(WEIBO_URLS_CACHE, job)
-        if todo>10:
+        if todo > 100:
+            print todo
+            target.rpush(WEIBO_URLS_CACHE, job)
+        if todo>110:
             break
     print 'There are totally %d jobs to process' % todo
     return todo

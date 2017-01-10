@@ -31,8 +31,9 @@ class WeiboBlogsWriter(DBAccesor):
         cursor = conn.cursor()
         for mblog in mblogs:
             topic_url = mblog['topic_url']
+            xhr_url = mblog['xhr_url']
             if cursor.execute(insert_blog_sql,(
-                topic_url, topic_url, theme, middle, mblog['date'],
+                xhr_url, xhr_url, theme, middle, mblog['date'],
                 bucketName, topic_url, mblog['mid'], mblog['u_name'],
                 mblog['u_id'], mblog['u_url'], mblog['u_img'],
                 mblog['url'], mblog['text'], mblog['sub_date'],
