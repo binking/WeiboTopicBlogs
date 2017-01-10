@@ -45,7 +45,7 @@ def extract_user_cn_url(url):
 def format_publish_date(date):
     if u"分钟前" in date:
         temp = dt.now() - timedelta(minutes=int(date[:-3]))
-        return temp.strftime("%Y-%m-%d %H:%M:%S") 
+        return temp.strftime("%Y-%m-%d %H:%M") 
     elif u"今天" in date:  # today
         return dt.now().strftime("%Y-%m-%d")+' '+date[3:]
     elif len(date.split('-')) == 2: # this year
@@ -100,7 +100,8 @@ class WeiboBlogsSpider(WeiboSpider):
                     continue
                 mblog = group['mblog']
                 user = group['mblog']['user']
-                long_id, short_id = group['itemid'].split('_')
+                temp_id, short_id = group['itemid'].split('_')
+                long_id = temp_id.split(':')[-1]
                 # format user's info
                 u_info['name'] = user['screen_name']
                 u_info['intro'] = user.get('verified_reason', '')
