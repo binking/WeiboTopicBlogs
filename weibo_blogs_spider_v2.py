@@ -36,9 +36,9 @@ def extract_content(html):
 
 def format_publish_date(date):
     if u"今天" in date:  # today
-        return dt.now().strftime("%Y-%m-%d")+date[3:]
+        return dt.now().strftime("%Y-%m-%d")+' '+date[3:]
     elif len(date.split('-')) == 2: # this year
-        return dt.now().strftime("%Y")+date
+        return dt.now().strftime("%Y")+'-'+date
     else:  # long long ago
         return date
 
