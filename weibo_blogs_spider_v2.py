@@ -71,7 +71,7 @@ class WeiboBlogsSpider(WeiboSpider):
             # with open('123456.json', 'w') as fw:
             #     json.dump(data, fw, indent=4)
         except Exception as e:
-            print str(e)
+            print str(e), " --> ", self.page
             return res
         if data['ok'] != 1:
             print "Not OK: ", self.page
@@ -94,8 +94,7 @@ class WeiboBlogsSpider(WeiboSpider):
         # Game is on !!!
         for card in data['cards']:
             for group in card['card_group']:
-                m_info = {}
-                u_info = {}
+                m_info = {}; u_info = {}; t_info = {}
                 if not group.get('mblog'):
                     continue
                 mblog = group['mblog']
@@ -130,6 +129,8 @@ class WeiboBlogsSpider(WeiboSpider):
                 m_info['device'] = mblog['source']
                 m_info['likes'] = mblog['attitudes_count']
                 m_info['comments'] = mblog['comments_count']
+                # format topic info
+
                 # display
                 # print "="*60
                 # for k, v in u_info.items():
