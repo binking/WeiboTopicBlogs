@@ -143,9 +143,9 @@ def run_all_worker():
     else:
         print "Redis has %d records in cache" % r.llen(WEIBO_URLS_CACHE)
     # init_current_account(r)
-    job_pool = mp.Pool(processes=4,
+    job_pool = mp.Pool(processes=1,
         initializer=generate_info, initargs=(r, ))
-    result_pool = mp.Pool(processes=2, 
+    result_pool = mp.Pool(processes=4, 
         initializer=write_data, initargs=(r, ))
 
     cp = mp.current_process()
@@ -165,10 +165,10 @@ def run_all_worker():
 
 
 if __name__=="__main__":
-    print "\n\n" + "%s Began Scraped Weibo New Users" % dt.now().strftime("%Y-%m-%d %H:%M:%S") + "\n"
+    print "\n\n" + "%s Began Scraped Weibo Tweets" % dt.now().strftime("%Y-%m-%d %H:%M:%S") + "\n"
     start = time.time()
     run_all_worker()
-    print "*"*10, "Totally Scraped Weibo New Users Time Consumed : %d seconds" % (time.time() - start), "*"*10
+    print "*"*10, "Totally Scraped Weibo Tweets Time Consumed : %d seconds" % (time.time() - start), "*"*10
 
 """
 {
