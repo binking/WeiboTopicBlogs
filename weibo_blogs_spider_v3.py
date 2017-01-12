@@ -9,7 +9,7 @@ from datetime import timedelta
 from bs4 import BeautifulSoup as bs
 from datetime import datetime as dt
 from zc_spider.weibo_spider import WeiboSpider
-from zc_spider.weibo_utils import catch_parse_error
+from zc_spider.weibo_utils import catch_parse_error, chin_num2dec
 from zc_spider.weibo_config import WEIBO_URLS_CACHE
 
 # url: http://m.weibo.cn/container/getIndex?containerid=2305301008087da2d6c9e74a5a22d510812b82a08c21__timeline__mobile_info_-_pageapp%253A23055763d3d983819d66869c27ae8da86cb176
@@ -85,9 +85,24 @@ class WeiboBlogsSpider(WeiboSpider):
         else:
             print "No since id, no next page: ", page_info['containerid']
         # Game is on !!!
+        # format topic info
+        t_info = {}
+        topic_stat = page_info.get('desc_more')
+        containerid = page_info.get('containerid')
+        if containerid and topic_stat and len(topic_stat) > 1:
+            try:
+                three_num_str, holder = topic_stat[0], topic_stat[1]
+                num_tuple = three_num_str.split('　')
+                t_info['url'] = 'http://weibo.com/p/' + containerid
+                t_info['read_num'] = num_tuple[0][2:]
+                t_info['disc_num'] = num_tuple[1][2:]
+                t_info['like_num'] = num_tuple[2][2:]
+                t_info['read_num_dec'] = chin_num2dec(t_info['read_num'])
+            except :
+                print "Can not parse topic info"
         for card in data['cards']:
             for group in card['card_group']:
-                m_info = {}; u_info = {}; t_info = {}
+                m_info = {}; u_info = {}
                 if not group.get('mblog'):
                     print "No any blog..."
                     continue
@@ -123,8 +138,6 @@ class WeiboBlogsSpider(WeiboSpider):
                 m_info['device'] = mblog['source']
                 m_info['likes'] = mblog['attitudes_count']
                 m_info['comments'] = mblog['comments_count']
-                # format topic info
-                # todo
                 # list all values
                 # print "="*60
                 # for k, v in m_info.items():
@@ -134,4 +147,4 @@ class WeiboBlogsSpider(WeiboSpider):
                 #     print k, v
                 tweet_list.append(m_info)
                 user_list.append(u_info)
-        return { "blogs": tweet_list, "users": user_list }
+        return { "blogs": tweet_list, "users": user_list , "topic": t_info}

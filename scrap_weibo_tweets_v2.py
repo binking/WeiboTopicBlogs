@@ -112,13 +112,18 @@ def write_data(cache):
         try:
             blogs = info['blogs']
             users = info['users']
+            topic = info['topic']
             print 'Blogs\' length', len(blogs)
             print 'Users\' length', len(users)
             if blogs:
                 dao.insert_blogs_into_db(blogs)
             if users:
                 dao.update_user_info(users)
+            if topic and len(topic) == 4:
+                dao.update_topic_info(topic)
         except Exception as e:  # won't let you died
+            traceback.print_exc()
+            time.sleep(10)
             error_count += 1
             print 'Failed to write result: ', info
             cache.rpush(WEIBO_INFO_CACHE, res)

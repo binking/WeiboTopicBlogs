@@ -70,7 +70,7 @@ class WeiboBlogsWriter(DBAccesor):
                 user['name'], user['follows'], user['fans'], user['blogs'], user['usercard'],
                 'http://weibo.com/' + user['usercard']
             )):
-                print '$'*10, "2. Update User %s SUCCEED." % user['name']
+                print '$'*10, "3. Update User %s SUCCEED." % user['name']
         conn.commit(); cursor.close(); conn.close()
         return True
 
@@ -78,15 +78,18 @@ class WeiboBlogsWriter(DBAccesor):
     def update_topic_info(self, topic):
         update_info_sql = """
             UPDATE topicinfo 
-            set title=%s, introduction=%s, read_num=%s, read_num_dec=%s, discussion_num=%s, fans_num=%s, topic_type=%s, topic_region=%s, label=%s, topic_url=%s, logo_img_url=%s
+            SET read_num=%s, read_num_dec=%s, discussion_num=%s, fans_num=%s, 
             WHERE topic_url=%s
         """
         conn = self.connect_database()
         cursor = conn.cursor()
         if cursor.execute(update_info_sql,(
+            topic['read_num'], topic['read_num_dec'], topic['disc_num'], 
+            topic['like_num'], topic['url']
             )):
-            print '$'*10, "3. Update Topic %s SUCCEED." % topic['topic_url']
-            conn.commit(); cursor.close(); conn.close()
+            print '$'*10, "4. Update Topic %s SUCCEED." % topic['url']
+            conn.commit(); 
+        cursor.close(); conn.close()
 
     @database_error_hunter
     def read_urls_from_db(self):
