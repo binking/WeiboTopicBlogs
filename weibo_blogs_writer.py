@@ -27,6 +27,11 @@ class WeiboBlogsWriter(DBAccesor):
             FROM DUAL WHERE NOT EXISTS(
             SELECT * FROM Weibo where weibo_url = %s)
         """
+        insert_relation_sql = """
+            INSERT INTO TopicWeiboRelation(topic_url, weibo_url)
+            SELECT %s, %s FROM DUAL WHERE not exists (
+            SELECT * FROM TopicWeiboRelation WHERE topic_url = %s AND weibo_url = %s)
+        """
         conn = self.connect_database()
         cursor = conn.cursor()
         for mblog in mblogs:
@@ -41,6 +46,10 @@ class WeiboBlogsWriter(DBAccesor):
                 mblog['likes'],topic_url, mblog['url']
                 )):
                 print '$'*10, "1. Insert MBlog %s SUCCEED." % mblog['url']
+            if cursor.execute(insert_relation_sql, (
+                topic_url, mblog['url'], topic_url, mblog['url']
+                )):
+                print '$'*10, "2. Insert Relation %s SUCCEED." % mblog['url']
         conn.commit(); cursor.close(); conn.close()
         return True
 
@@ -102,3 +111,26 @@ class WeiboBlogsWriter(DBAccesor):
         cursor.execute(select_sql)
         for url in cursor.fetchall():
             yield url[0]
+
+    def repair_data(self):
+        select_sql = """
+            SELECT topic_url, weibo_url
+            FROM weibo
+            WHERE createdate > '2017-01-10 00:00:00' 
+            AND theme LIKE '%python%';
+        """
+        insert_relation_sql = """
+            INSERT INTO TopicWeiboRelation(topic_url, weibo_url)
+            SELECT %s, %s FROM DUAL WHERE not exists (
+            SELECT * FROM TopicWeiboRelation WHERE topic_url = %s AND weibo_url = %s)
+        """
+        conn = self.connect_database()
+        cursor = conn.cursor()
+        cursor.execute(select_sql)
+        for res in cursor.fetchall():
+            if cursor.execute(insert_relation_sql, (
+                res[0], res[1], res[0], res[1]
+                )):
+                print '$'*10, "1. Insert Relation %s SUCCEED." % res[1]
+            conn.commit()
+        cursor.close(); conn.close()
