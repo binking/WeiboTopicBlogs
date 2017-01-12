@@ -89,6 +89,8 @@ class WeiboBlogsSpider(WeiboSpider):
         if "&page=" not in self.url:
             # first page
             print "%s has %d mblogs.." % (self.url, page_info['total'])
+            if max_page > 20:
+                max_page = 20
             for i in range(1, max_page + 1):
                 rconn.rpush(WEIBO_URLS_CACHE, self.url+"&page=%d"%i)
         # Game is on !!!
