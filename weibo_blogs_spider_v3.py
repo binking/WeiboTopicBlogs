@@ -126,12 +126,12 @@ class WeiboBlogsSpider(WeiboSpider):
                 # format topic info
                 # todo
                 # list all values
-                print "="*60
-                for k, v in m_info.items():
-                    print k, v
-                print "-"*60
-                for k, v in u_info.items():
-                    print k, v
+                # print "="*60
+                # for k, v in m_info.items():
+                #     print k, v
+                # print "-"*60
+                # for k, v in u_info.items():
+                #     print k, v
                 tweet_list.append(m_info)
                 user_list.append(u_info)
         return { "blogs": tweet_list, "users": user_list }
