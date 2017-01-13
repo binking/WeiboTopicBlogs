@@ -113,8 +113,6 @@ def write_data(cache):
             blogs = info['blogs']
             users = info['users']
             topic = info['topic']
-            print 'Blogs\' length', len(blogs)
-            print 'Users\' length', len(users)
             if blogs:
                 dao.insert_blogs_into_db(blogs)
             if users:
