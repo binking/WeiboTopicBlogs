@@ -57,7 +57,7 @@ def single_process():
     account = random.choice(all_account)
     # while True:
     #     job = cache.blpop(WEIBO_URLS_CACHE, 0)[1]
-    job = "http://weibo.com/p/" + "1008087da2d6c9e74a5a22d510812b82a08c21"
+    job = "http://weibo.com/p/" + "1008088b451cf47505c674c29f2466424894eb"
     xhr_url = xhrize_topic_url(job)
     spider = WeiboBlogsSpider(xhr_url, account, WEIBO_ACCOUNT_PASSWD, timeout=20, delay=3)
     spider.use_abuyun_proxy()
@@ -73,10 +73,10 @@ def single_process():
         users = res['users']
         topic = res['topic']
         if blogs:
-            print blogs
+            # print blogs
             dao.insert_blogs_into_db(blogs)
         if users:
-            print users
+            # print users
             dao.update_user_info(users)
         if topic and len(topic) == 4:
             print topic

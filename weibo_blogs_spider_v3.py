@@ -92,7 +92,7 @@ class WeiboBlogsSpider(WeiboSpider):
         if containerid and topic_stat and len(topic_stat) > 1:
             try:
                 three_num_str, holder = topic_stat[0], topic_stat[1]
-                num_tuple = three_num_str.split('　')
+                num_tuple = three_num_str.split(u"　")  # not ascii
                 t_info['url'] = 'http://weibo.com/p/' + containerid
                 t_info['read_num'] = num_tuple[0][2:]
                 t_info['disc_num'] = num_tuple[1][2:]
@@ -100,6 +100,7 @@ class WeiboBlogsSpider(WeiboSpider):
                 t_info['read_num_dec'] = chin_num2dec(t_info['read_num'])
             except :
                 print "Can not parse topic info"
+        print 'Topic info: ', t_info
         for card in data['cards']:
             for group in card['card_group']:
                 m_info = {}; u_info = {}
