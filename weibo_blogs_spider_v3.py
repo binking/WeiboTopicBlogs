@@ -63,10 +63,10 @@ class WeiboBlogsSpider(WeiboSpider):
         try:
             data = json.loads(self.page)
         except Exception as e:
-            print str(e), "(%s)--> "%self.url, self.page
+            print str(e), "(%s)--> " % self.url, self.page
             return res
         if data['ok'] != 1:
-            print "Not OK: ", self.page, ' and put it back'
+            print "Not OK(%s)" % (self.url)
             rconn.rpush(WEIBO_URLS_CACHE, self.url)
             return res
         # page info, may be from cardlistInfo or pageInfo
