@@ -79,7 +79,7 @@ def generate_info(cache):
             elif status in [20003, -404]:  # blocked or abnormal account
                 cache.rpush(WEIBO_URLS_CACHE, job)
             res = spider.parse_tweet_list(cache)
-            if len(res) == 2:
+            if len(res) == 3:
                 cache.rpush(WEIBO_INFO_CACHE, pickle.dumps(res))
         except ValueError as e:
             print e  # print e.message
