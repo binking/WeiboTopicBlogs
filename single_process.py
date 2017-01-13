@@ -17,7 +17,7 @@ from zc_spider.weibo_config import (
     QCLOUD_MYSQL, OUTER_MYSQL,
     LOCAL_REDIS, QCLOUD_REDIS
 )
-from weibo_blogs_spider_v2 import WeiboBlogsSpider
+from weibo_blogs_spider_v3 import WeiboBlogsSpider
 from weibo_blogs_writer import WeiboBlogsWriter
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -55,30 +55,32 @@ def single_process():
     all_account = test_curls.keys()
     dao = WeiboBlogsWriter(USED_DATABASE)
     account = random.choice(all_account)
-    while True:
-        job = cache.blpop(WEIBO_URLS_CACHE, 0)[1]
-        xhr_url = xhrize_topic_url(job)
-        spider = WeiboBlogsSpider(xhr_url, account, WEIBO_ACCOUNT_PASSWD, timeout=20, delay=3)
-        spider.use_abuyun_proxy()
-        spider.add_request_header()
-        spider.use_cookie_from_curl(test_curls.get(account))
-        status = spider.gen_html_source(raw=True)
-        if status == 404:
-            return 
-        res = spider.parse_tweet_list(cache)
-        if len(res) == 2:
-            blogs = res['blogs']
-            users = res['users']
-            topic = res['topic']
-            if blogs:
-                print blogs
-                dao.insert_blogs_into_db(blogs)
-            if users:
-                print users
-                dao.update_user_info(users)
-            if topic and len(topic) == 4:
-                print topic
-                dao.update_topic_info(topic)
+    # while True:
+    #     job = cache.blpop(WEIBO_URLS_CACHE, 0)[1]
+    job = "http://weibo.com/p/" + "1008087da2d6c9e74a5a22d510812b82a08c21"
+    xhr_url = xhrize_topic_url(job)
+    spider = WeiboBlogsSpider(xhr_url, account, WEIBO_ACCOUNT_PASSWD, timeout=20, delay=3)
+    spider.use_abuyun_proxy()
+    spider.add_request_header()
+    spider.use_cookie_from_curl(test_curls.get(account))
+    status = spider.gen_html_source(raw=True)
+    if status == 404:
+        return 
+    res = spider.parse_tweet_list(cache)
+    if len(res) == 3:
+        import ipdb; ipdb.set_trace()
+        blogs = res['blogs']
+        users = res['users']
+        topic = res['topic']
+        if blogs:
+            print blogs
+            dao.insert_blogs_into_db(blogs)
+        if users:
+            print users
+            dao.update_user_info(users)
+        if topic and len(topic) == 4:
+            print topic
+            dao.update_topic_info(topic)
 
 if __name__=="__main__":
     print "\n\n" + "%s Began Scraped Weibo New Tweets" % dt.now().strftime("%Y-%m-%d %H:%M:%S") + "\n"
