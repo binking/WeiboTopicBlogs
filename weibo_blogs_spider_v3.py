@@ -98,7 +98,8 @@ class WeiboBlogsSpider(WeiboSpider):
                 t_info['disc_num'] = num_tuple[1][2:]
                 t_info['like_num'] = num_tuple[2][2:]
                 t_info['read_num_dec'] = chin_num2dec(t_info['read_num'])
-            except :
+            except Exception as e:
+                print e
                 print "Can not parse topic info"
         print 'Topic info: ', t_info
         for card in data['cards']:

@@ -112,13 +112,13 @@ def write_data(cache):
         try:
             blogs = info['blogs']
             users = info['users']
-            topic = info['topic']
+            # topic = info['topic']
             if blogs:
                 dao.insert_blogs_into_db(blogs)
             if users:
                 dao.update_user_info(users)
-            if topic and len(topic) == 5:
-                dao.update_topic_info(topic)
+            # if topic and len(topic) == 5:
+            #     dao.update_topic_info(topic)
         except Exception as e:  # won't let you died
             traceback.print_exc()
             time.sleep(10)
