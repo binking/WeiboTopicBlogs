@@ -5,14 +5,12 @@ import sys
 import time
 import redis
 import pickle
-import random
 import traceback
 from datetime import datetime as dt
 import multiprocessing as mp
 from zc_spider.weibo_utils import RedisException
 from zc_spider.weibo_config import (
-    TWEETS_COOKIES,
-    WEIBO_ACCOUNT_PASSWD,
+    TWEETS_COOKIES, WEIBO_ACCOUNT_PASSWD,
     WEIBO_URLS_CACHE, WEIBO_INFO_CACHE,  # weibo:blog:urls, weibo:blog:info
     QCLOUD_MYSQL, OUTER_MYSQL,
     LOCAL_REDIS, QCLOUD_REDIS
