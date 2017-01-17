@@ -30,7 +30,7 @@ else:
 def add_jobs(target):
     todo = 0
     dao = WeiboBlogsWriter(USED_DATABASE)
-    for job in dao.read_new_user_from_db():  # iterate
+    for job in dao.read_urls_from_db():  # iterate
         todo += 1
         if target.lrem(WEIBO_URLS_CACHE, 0, job):
             # the job had existed in the queue
