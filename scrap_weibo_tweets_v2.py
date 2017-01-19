@@ -54,9 +54,11 @@ def generate_info(cache):
     Producer for urls and topics, Consummer for topics
     """
     error_count = 0
+    loop_count = 0
     cp = mp.current_process()
     while True:
         res = {}
+        loop_count += 1
         if error_count > 999:
             print '>'*10, 'Exceed 1000 times of gen errors', '<'*10
             break
@@ -65,7 +67,9 @@ def generate_info(cache):
         xhr_url = xhrize_topic_url(job)
         try:
             all_account = cache.hkeys(TWEETS_COOKIES)
-            # all_account = test_curls.keys()
+            if len(all_account) == 0:
+                time.sleep(pow(2, loop_count))
+                continue
             account = random.choice(all_account)
             spider = WeiboBlogsSpider(xhr_url, account, WEIBO_ACCOUNT_PASSWD, timeout=20, delay=3)
             spider.use_abuyun_proxy()

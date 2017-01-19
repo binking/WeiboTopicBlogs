@@ -101,7 +101,6 @@ class WeiboBlogsSpider(WeiboSpider):
             except Exception as e:
                 print e
                 print "Can not parse topic info"
-        print 'Topic info: ', t_info
         for card in data['cards']:
             for group in card['card_group']:
                 m_info = {}; u_info = {}
@@ -140,13 +139,6 @@ class WeiboBlogsSpider(WeiboSpider):
                 m_info['device'] = mblog['source']
                 m_info['likes'] = mblog['attitudes_count']
                 m_info['comments'] = mblog['comments_count']
-                # list all values
-                # print "="*60
-                # for k, v in m_info.items():
-                #     print k, v
-                # print "-"*60
-                # for k, v in u_info.items():
-                #     print k, v
                 tweet_list.append(m_info)
                 user_list.append(u_info)
         return { "blogs": tweet_list, "users": user_list , "topic": t_info}
