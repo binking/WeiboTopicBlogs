@@ -77,7 +77,7 @@ class WeiboBlogsWriter(DBAccesor):
     @database_error_hunter
     def update_topic_info(self, topic):
         update_info_sql = """
-            UPDATE topicinfo 
+            UPDATE WeiboTopic 
             SET read_num=%s, read_num_dec=%s, discussion_num=%s, fans_num=%s, 
             WHERE topic_url=%s
         """
@@ -103,7 +103,7 @@ class WeiboBlogsWriter(DBAccesor):
             WHERE topic_url = t.topic_url)
             UNION  -- TopicInfo 微博数量太少的话题
             SELECT t.topic_url, max(t.createdate) AS createdate 
-            FROM topicinfo t, topicweiborelation tw
+            FROM WeiboTopic t, topicweiborelation tw
             WHERE t.topic_url = tw.topic_url
             AND createdate > date_sub(NOW(), INTERVAL '7' DAY )
             GROUP BY topic_url
