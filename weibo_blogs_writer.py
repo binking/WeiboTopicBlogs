@@ -94,7 +94,7 @@ class WeiboBlogsWriter(DBAccesor):
     @database_error_hunter
     def read_urls_from_db(self):
         select_sql = """
-            SELECT DISTINCT topic_url, createdate FROM topicinfo t
+            SELECT DISTINCT topic_url, createdate FROM WeiboTopic t
             -- TopicInfo 没有爬过的Topic数据
             WHERE 1 = 1 AND createdate > date_sub(NOW(), INTERVAL '2' DAY )
             -- AND theme LIKE '新浪微博_热门话题%'
