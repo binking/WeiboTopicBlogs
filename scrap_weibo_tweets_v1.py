@@ -11,7 +11,7 @@ from datetime import datetime as dt
 import multiprocessing as mp
 from zc_spider.weibo_utils import RedisException
 from zc_spider.weibo_config import (
-    TWEETS_COOKIES,
+    WEIBO_COOKIES,
     WEIBO_ACCOUNT_PASSWD,
     WEIBO_URLS_CACHE, WEIBO_INFO_CACHE,  # weibo:blog:urls, weibo:blog:info
     QCLOUD_MYSQL, OUTER_MYSQL,
@@ -65,13 +65,13 @@ def generate_info(cache):
         job = cache.blpop(WEIBO_URLS_CACHE, 0)[1]
         xhr_url = xhrize_topic_url(job)
         try:
-            all_account = cache.hkeys(TWEETS_COOKIES)
+            all_account = cache.hkeys(WEIBO_COOKIES)
             # all_account = test_curls.keys()
             account = random.choice(all_account)
             spider = WeiboBlogsSpider(xhr_url, account, WEIBO_ACCOUNT_PASSWD, timeout=20, delay=3)
             spider.use_abuyun_proxy()
             spider.add_request_header()
-            spider.use_cookie_from_curl(cache.hget(TWEETS_COOKIES, account))
+            spider.use_cookie_from_curl(cache.hget(WEIBO_COOKIES, account))
             # spider.use_cookie_from_curl(test_curls.get(account))
             status = spider.gen_html_source(raw=True)
             if status == 404:
