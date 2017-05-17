@@ -64,7 +64,8 @@ def generate_info(cache):
                 res = spider.parse_tweet_list()
                 if len(res) == 4:
                     cache.rpush(WEIBO_INFO_CACHE, pickle.dumps(res))
-                    cache.rpush(WEIBO_URLS_CACHE, res['next_url'])
+                    if len(res['next_url']) > 1:
+                        cache.rpush(WEIBO_URLS_CACHE, res['next_url'])
             else:
                 cache.rpush(WEIBO_URLS_CACHE, job)
         except Exception as e:  # no matter what was raised, cannot let process died
