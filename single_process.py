@@ -11,11 +11,9 @@ from datetime import datetime as dt
 import multiprocessing as mp
 from zc_spider.weibo_utils import RedisException
 from zc_spider.weibo_config import (
-    MANUAL_COOKIES,
     WEIBO_ACCOUNT_PASSWD,
     WEIBO_URLS_CACHE, WEIBO_INFO_CACHE,  # weibo:blog:urls, weibo:blog:info
-    QCLOUD_MYSQL, OUTER_MYSQL,
-    LOCAL_REDIS, QCLOUD_REDIS
+    QCLOUD_MYSQL, LOCAL_REDIS, QCLOUD_REDIS
 )
 from weibo_blogs_spider_v3 import WeiboBlogsSpider
 from weibo_blogs_writer import WeiboBlogsWriter
@@ -24,21 +22,17 @@ sys.setdefaultencoding('utf-8')
 
 if os.environ.get('SPIDER_ENV') == 'test':
     print "*"*10, "Run in Test environment"
-    USED_DATABASE = OUTER_MYSQL
     USED_REDIS = LOCAL_REDIS
 elif 'centos' in os.environ.get('HOSTNAME'): 
     print "*"*10, "Run in Qcloud environment"
-    USED_DATABASE = QCLOUD_MYSQL
     USED_REDIS = QCLOUD_REDIS
 else:
     raise Exception("Unknown Environment, Check it now...")
-
-
+USED_DATABASE = QCLOUD_MYSQL
 test_curls = {
-    "ranji3890527@163.com": "curl 'http://m.weibo.cn/container/getIndex?containerid=2305301008087da2d6c9e74a5a22d510812b82a08c21__timeline__mobile_info_-_pageapp%253A23055763d3d983819d66869c27ae8da86cb176&uid=5985315181&luicode=10000011&lfid=1073037da2d6c9e74a5a22d510812b82a08c21_-_ext_intro&featurecode=20000180' -H 'Cookie: SUB=_2A251fEq1DeTxGeNH41EQ9CjMwjiIHXVWn1b9rDV6PUJbkdBeLXLukW0xruiqxhhEC26dXTDYOyScr7k5lw..; SUHB=08JrGttv8xy2ZA; SCF=AlkT3qmVha4C8fCTk2WCUzIfJardIlLfEytjpiIIDCmn67MOsIH7A_HqZL5XU_kVpC1p-L3Lj1IjbA3aCwc1JmY.; SSOLoginState=1484274405; _T_WM=d13870ebd0b8e244a4126ff1bdb489b7; M_WEIBOCN_PARAMS=luicode%3D10000011%26lfid%3D1073037da2d6c9e74a5a22d510812b82a08c21_-_ext_intro%26featurecode%3D20000180%26fid%3D2305301008087da2d6c9e74a5a22d510812b82a08c21__timeline__mobile_info_-_pageapp%253A23055763d3d983819d66869c27ae8da86cb176%26uicode%3D10000011' -H 'Accept-Encoding: gzip, deflate, sdch' -H 'Accept-Language: zh-CN,zh;q=0.8' -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36' -H 'Accept: application/json, text/plain, */*' -H 'Referer: http://m.weibo.cn/p/index?containerid=2305301008087da2d6c9e74a5a22d510812b82a08c21__timeline__mobile_info_-_pageapp%253A23055763d3d983819d66869c27ae8da86cb176&uid=5985315181&luicode=10000011&lfid=1073037da2d6c9e74a5a22d510812b82a08c21_-_ext_intro&featurecode=20000180' -H 'X-Requested-With: XMLHttpRequest' -H 'Connection: keep-alive' --compressed",
-    "zaisi264082@163.com": "curl 'http://m.weibo.cn/container/getIndex?containerid=2305301008087da2d6c9e74a5a22d510812b82a08c21__timeline__mobile_info_-_pageapp%253A23055763d3d983819d66869c27ae8da86cb176&uid=5985315181&luicode=10000011&lfid=1073037da2d6c9e74a5a22d510812b82a08c21_-_ext_intro&featurecode=20000180' -H 'Cookie: SUB=_2A251fEv_DeTxGeNH41MY9S3NzTuIHXVWn1W3rDV6PUJbkdBeLU3dkW0wtP27DurNRpzATBBddbffU6EeQw..; SUHB=0laVvOXWgD0LPv; SCF=As3SXkjzU4wMas_KCgMb2cyz41-MEW5ldXULrPBANM1BJjeJTo7rvmkARvMteIOum0ux8aSbpdKQA9xqb5sTb08.; SSOLoginState=1484274607; _T_WM=e256e443c8447f7472cd06a4cc77e00e; M_WEIBOCN_PARAMS=luicode%3D10000011%26lfid%3D1073037da2d6c9e74a5a22d510812b82a08c21_-_ext_intro%26featurecode%3D20000180%26fid%3D2305301008087da2d6c9e74a5a22d510812b82a08c21__timeline__mobile_info_-_pageapp%253A23055763d3d983819d66869c27ae8da86cb176%26uicode%3D10000011' -H 'Accept-Encoding: gzip, deflate, sdch' -H 'Accept-Language: zh-CN,zh;q=0.8' -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36' -H 'Accept: application/json, text/plain, */*' -H 'Referer: http://m.weibo.cn/p/index?containerid=2305301008087da2d6c9e74a5a22d510812b82a08c21__timeline__mobile_info_-_pageapp%253A23055763d3d983819d66869c27ae8da86cb176&uid=5985315181&luicode=10000011&lfid=1073037da2d6c9e74a5a22d510812b82a08c21_-_ext_intro&featurecode=20000180' -H 'X-Requested-With: XMLHttpRequest' -H 'Connection: keep-alive' --compressed",
-    "chengtezhuiji@163.com": "curl 'http://m.weibo.cn/container/getIndex?containerid=2305301008087da2d6c9e74a5a22d510812b82a08c21__timeline__mobile_info_-_pageapp%253A23055763d3d983819d66869c27ae8da86cb176&uid=5985315181&luicode=10000011&lfid=1073037da2d6c9e74a5a22d510812b82a08c21_-_ext_intro&featurecode=20000180' -H 'Cookie: SUB=_2A251fExwDeTxGeNH41YT9CzEzjWIHXVWn1Q4rDV6PUJbkdBeLVrRkW1A9EJ5Yhac_D_PSuFjZe1QaD6vlg..; SUHB=0xnSrzu3RohCdX; SCF=AqfnSjEslpg0uymVO2jG8T2q7q51UJX1bzlbtZ78RF83Oc2E8aofo-2aDUbHb1cHO-yr5TGfr1L0SYleyOS3paQ.; SSOLoginState=1484274720; _T_WM=88cc5879995ab9001b8011c57edef76e; M_WEIBOCN_PARAMS=luicode%3D10000011%26lfid%3D1073037da2d6c9e74a5a22d510812b82a08c21_-_ext_intro%26featurecode%3D20000180%26fid%3D2305301008087da2d6c9e74a5a22d510812b82a08c21__timeline__mobile_info_-_pageapp%253A23055763d3d983819d66869c27ae8da86cb176%26uicode%3D10000011' -H 'Accept-Encoding: gzip, deflate, sdch' -H 'Accept-Language: zh-CN,zh;q=0.8' -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36' -H 'Accept: application/json, text/plain, */*' -H 'Referer: http://m.weibo.cn/p/index?containerid=2305301008087da2d6c9e74a5a22d510812b82a08c21__timeline__mobile_info_-_pageapp%253A23055763d3d983819d66869c27ae8da86cb176&uid=5985315181&luicode=10000011&lfid=1073037da2d6c9e74a5a22d510812b82a08c21_-_ext_intro&featurecode=20000180' -H 'X-Requested-With: XMLHttpRequest' -H 'Connection: keep-alive' --compressed",
-    "gangji3814901@163.com": "curl 'http://m.weibo.cn/container/getIndex?containerid=230530100808164036950f29ba5f42a35a027240eaa0__timeline__mobile_info_-_pageapp%253A23055763d3d983819d66869c27ae8da86cb176&featurecode=20000180&lfid=100808164036950f29ba5f42a35a027240eaa0_-_ext_intro&luicode=10000011&retcode=6102&since_id' -H 'Accept-Encoding: gzip, deflate, sdch' -H 'Accept-Language: zh-CN,zh;q=0.8' -H 'Upgrade-Insecure-Requests: 1' -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8' -H 'Cache-Control: max-age=0' -H 'Cookie: SUB=_2A251fE23DeTxGeNH41cS8ijJzzuIHXVWn1P_rDV6PUJbkdBeLUXHkW2HLxpg9Va3By_f5mhTF1kos-cXvQ..; SUHB=0sqRVGxWaPVsMf; SCF=Airp-PgpAoccQlAdTBc0uq26kgwk7dgk_y8lnqq4dqtMk0WzLvqANe8ZOwZIhvUBWMKaLslm0HX7Ipd5JO_0moY.; SSOLoginState=1484275175; _T_WM=61030f86cc5de0853eddd626b93044de; M_WEIBOCN_PARAMS=featurecode%3D20000180%26luicode%3D10000011%26lfid%3D100808164036950f29ba5f42a35a027240eaa0_-_ext_intro%26fid%3D230530100808164036950f29ba5f42a35a027240eaa0__timeline__mobile_info_-_pageapp%253A23055763d3d983819d66869c27ae8da86cb176%26uicode%3D10000011' -H 'Connection: keep-alive' --compressed",
+    # "13874117403": "curl 'http://d.weibo.com/' -H 'Accept-Encoding: gzip, deflate, sdch' -H 'Accept-Language: zh-CN,zh;q=0.8,en;q=0.6,ja;q=0.4' -H 'Upgrade-Insecure-Requests: 1' -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.96 Safari/537.36' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8' -H 'Cookie: YF-Page-G0=046bedba5b296357210631460a5bf1d2; SUB=_2A250H4sqDeRhGeBP71sW8CvKyzqIHXVXbPvirDV8PUJbmtANLRnQkW-gv8TaApsanFgWAhDPrW1tMgF8yw..; SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9W5jO9DN_2YvvgJIBqHGiUyw5JpX5o2p5NHD95QceKB4S05fSo5cWs4Dqcjqi--RiK.0iKLsi--ci-8hi-2NqH2Rqg-R; SUHB=08JL6cYdExecZw; SSOLoginState=1495006074' -H 'Connection: keep-alive' --compressed",
+    # "18373273114": "curl 'http://d.weibo.com/' -H 'Accept-Encoding: gzip, deflate, sdch' -H 'Accept-Language: zh-CN,zh;q=0.8,en;q=0.6,ja;q=0.4' -H 'Upgrade-Insecure-Requests: 1' -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.96 Safari/537.36' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8' -H 'Cookie: YF-Page-G0=fc0a6021b784ae1aaff2d0aa4c9d1f17; SUB=_2A250H4tpDeRhGeBP7lIR8yjEzz2IHXVXbPuhrDV8PUJbmtANLWuhkW91VMdmxEM6EdmNt41tlcO8CjKx4Q..; SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9WWijk-VXGVmHWzvwcnpoOS25JpX5o2p5NHD95QceK-7ehec1hBpWs4Dqcjqi--fi-88iKyFi--fi-i2i-829.7fwhef; SUHB=0FQrgQjmg8q5XT; SSOLoginState=1495006009' -H 'Connection: keep-alive' --compressed",
+    "binking": "curl 'https://m.weibo.cn/container/getIndex?containerid=230530100808e08305258b94e88031b9fc1c3c081aa1__timeline__mobile_info_-_pageapp%253A23055763d3d983819d66869c27ae8da86cb176&luicode=10000011&lfid=100808e08305258b94e88031b9fc1c3c081aa1_-_ext_intro&featurecode=20000180' -H 'Accept-Encoding: gzip, deflate, sdch, br' -H 'Accept-Language: zh-CN,zh;q=0.8,en;q=0.6,ja;q=0.4' -H 'Upgrade-Insecure-Requests: 1' -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.96 Safari/537.36' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8' -H 'Cache-Control: max-age=0' -H 'Cookie: browser=d2VpYm9mYXhpYW4%3D; ALF=1497494828; SCF=Ap11mp4UEZs9ZcoafG0iD1wVDGjdyuPuLY8BpwtpvSEE464H3H6FSoD4EotizRMQEkqmXu8cs8y4XIJCwiMapZA.; SUB=_2A250H4mDDeRhGeVG7FYT8i_OzzWIHXVX4xfLrDV6PUNbktBeLU_5kW0O7kSz5TxvupzMTuyFzSwEKp7ZYQ..; SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9WhxM.AD9EjGmQSc51FnJvMU5JpX5KMhUgL.FoeRS0BEeo2ESh.2dJLoIEBLxK.L1KnLBoeLxKqL1KnL12-LxK-LBo5L1K2LxK-LBo.LBoBt; SUHB=0mxUQ6qkGZtXU4; SSOLoginState=1495005651; _T_WM=ac17c1eff6bb6e8a3318d6ab37351a69; M_WEIBOCN_PARAMS=luicode%3D10000011%26lfid%3D100808e08305258b94e88031b9fc1c3c081aa1_-_ext_intro%26featurecode%3D20000180%26oid%3D4093120361217109%26fid%3D230530100808e08305258b94e88031b9fc1c3c081aa1__timeline__mobile_info_-_pageapp%253A23055763d3d983819d66869c27ae8da86cb176%26uicode%3D10000011' -H 'Connection: keep-alive' --compressed",
 }
 
 def xhrize_topic_url(url):
@@ -55,14 +49,13 @@ def single_process():
     all_account = test_curls.keys()
     dao = WeiboBlogsWriter(USED_DATABASE)
     account = random.choice(all_account)
-    # while True:
-    #     job = cache.blpop(WEIBO_URLS_CACHE, 0)[1]
-    job = "http://weibo.com/p/" + "1008088b451cf47505c674c29f2466424894eb"
+    job = "http://weibo.com/p/" + "100808e08305258b94e88031b9fc1c3c081aa1"
     xhr_url = xhrize_topic_url(job)
     spider = WeiboBlogsSpider(xhr_url, account, WEIBO_ACCOUNT_PASSWD, timeout=20, delay=3)
     spider.use_abuyun_proxy()
     spider.add_request_header()
     spider.use_cookie_from_curl(test_curls.get(account))
+    import ipdb; ipdb.set_trace()
     status = spider.gen_html_source(raw=True)
     if status == 404:
         return 

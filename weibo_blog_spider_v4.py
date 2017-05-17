@@ -1,29 +1,13 @@
-#-*- coding: utf-8 -*-
-#--------  话题48992  爬取一个话题下的所有微博  --------
-
+# -*- encoding=utf-8 -*-
 import re
 import json
-import math
 import requests
+from datetime import datetime as dt
 from datetime import timedelta
 from bs4 import BeautifulSoup as bs
-from datetime import datetime as dt
-from zc_spider.weibo_spider import WeiboSpider
-from zc_spider.weibo_utils import catch_parse_error, chin_num2dec
-from zc_spider.weibo_config import WEIBO_URLS_CACHE
+from zc_spider.weibo_utils import \
+    gen_abuyun_proxy, retry, extract_post_data_from_curl,chin_num2dec
 
-# url: http://m.weibo.cn/container/getIndex?containerid=2305301008087da2d6c9e74a5a22d510812b82a08c21__timeline__mobile_info_-_pageapp%253A23055763d3d983819d66869c27ae8da86cb176
-# 1st: 
-#       containerid:2305301008087da2d6c9e74a5a22d510812b82a08c21__timeline__mobile_info_-_pageapp%3A23055763d3d983819d66869c27ae8da86cb176
-#       luicode:10000011
-#       lfid:1073037da2d6c9e74a5a22d510812b82a08c21_-_ext_intro
-#       featurecode:20000180
-# 2nd:
-#       containerid:2305301008087da2d6c9e74a5a22d510812b82a08c21__timeline__mobile_info_-_pageapp%3A23055763d3d983819d66869c27ae8da86cb176
-#       luicode:10000011
-#       lfid:1073037da2d6c9e74a5a22d510812b82a08c21_-_ext_intro
-#       featurecode:20000180
-#       since_id:{"last_since_id":4063219502849963,"res_type":1,"next_since_id":4063134023350041}
 def extract_content(html):
     parser = bs(html, 'html.parser')
     # temp = re.sub(r'@.+[ :]|#.+#', '', parser.text)
@@ -39,7 +23,7 @@ def extract_user_cn_url(url):
 def format_publish_date(date):
     if u"分钟前" in date:
         temp = dt.now() - timedelta(minutes=int(date[:-3]))
-        return temp.strftime("%Y-%m-%d %H:%M") 
+        return temp.strftime("%Y-%m-%d %H:%M")
     elif u"今天" in date:  # today
         return dt.now().strftime("%Y-%m-%d")+' '+date[3:]
     elif len(date.split('-')) == 2: # this year
@@ -47,33 +31,44 @@ def format_publish_date(date):
     else:  # long long ago
         return date
 
-class WeiboBlogsSpider(WeiboSpider):
-    def __init__(self, start_url, account, password, timeout=10, delay=1, proxy={}):
-        WeiboSpider.__init__(self, start_url, account, password, timeout=timeout, delay=delay, proxy=proxy)
 
+class WeiboBlogSpider:
+    def __init__(self):
+        self.uri = ''
+        self.response = ''
 
     @retry((Exception,), tries=4, delay=2, backoff=2)
-    def send_request_to_weibo(self, url, request_header, proxy):
-        r = requests.get(self.uri, timeout=20, headers=request_header, proxies=proxy)
-        self.page = r.text
+    def send_request_to_weibo(self, url, cookie):
+        self.uri = url
+        print "Send request to weibo: ", url
+        r = requests.get(self.uri, timeout=20, headers=extract_post_data_from_curl(cookie), proxies=gen_abuyun_proxy())
+        if r.status_code == 404 or "404 Not Found" in r.text:
+            print "404 Not Found"
+            return False
+        elif r.status_code != 200:
+            print "HTTP Code : ", r.status_code
+            raise Exception("Retry")
+        self.response = r.text
+        return True
 
-    @catch_parse_error((AttributeError, Exception))
-    def parse_tweet_list(self, rconn):
+    def parse_tweet_list(self):
         """
         10 blogs / once
         """
         res = {}
-        total_count = -1
+        next_url = ''
         tweet_list = []; user_list = []
+        print "Parsing : ", self.uri
         try:
-            data = json.loads(self.page)
+            data = json.loads(self.response)
         except Exception as e:
-            print str(e), "(%s)--> " % self.url, self.page
+            print str(e)
+            print "(%s)--> " % self.uri, self.response
             return res
-        if data['ok'] != 1:
-            print "Not OK(%s)" % (self.url)
-            rconn.rpush(WEIBO_URLS_CACHE, self.url)
-            return res
+        # if data['ok'] != 1:
+        #     print "Not OK(%s)" % (self.url)
+        #     rconn.rpush(WEIBO_URLS_CACHE, self.url)
+        #     return res
         # page info, may be from cardlistInfo or pageInfo
         try:
             page_info = data['cardlistInfo']
@@ -81,12 +76,11 @@ class WeiboBlogsSpider(WeiboSpider):
             page_info = data['pageInfo']
         # format next page
         since_id = page_info.get('since_id')
-        if since_id and "since_id" not in self.url:
-            # first page
-            rconn.rpush(WEIBO_URLS_CACHE, self.url+"&since_id="+since_id)
+        if since_id and "since_id" not in self.uri: # first page
+            next_url = self.uri + "&since_id=" + since_id
         elif since_id:  # update since_id
-            next_page = re.sub(r'since_id=(.+)', 'since_id=' + since_id, self.url)
-            rconn.rpush(WEIBO_URLS_CACHE, next_page)
+            next_url = re.sub(r'since_id=(.+)', 'since_id=' + since_id, self.uri)
+            # rconn.rpush(WEIBO_URLS_CACHE, next_page)
         else:
             print "No since id, no next page: ", page_info['containerid']
         # Game is on !!!
@@ -129,7 +123,7 @@ class WeiboBlogsSpider(WeiboSpider):
                 u_info['cn_url'] = extract_user_cn_url(user['profile_url'])
                 u_info['desc'] = user.get('description', '')
                 # format blog's info
-                m_info['xhr_url'] = self.url
+                m_info['xhr_url'] = self.uri
                 m_info['reposts'] = mblog['reposts_count']
                 m_info['text'] = extract_content(mblog['text'])
                 m_info['mid'] = mblog['id']
@@ -146,4 +140,5 @@ class WeiboBlogsSpider(WeiboSpider):
                 m_info['comments'] = mblog['comments_count']
                 tweet_list.append(m_info)
                 user_list.append(u_info)
-        return { "blogs": tweet_list, "users": user_list , "topic": t_info}
+        print "Parsing done : %s." % self.uri
+        return { "blogs": tweet_list, "users": user_list , "topic": t_info, "next_url": next_url}
