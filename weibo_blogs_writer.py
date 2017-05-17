@@ -35,22 +35,28 @@ class WeiboBlogsWriter(DBAccesor):
         conn = self.connect_database()
         cursor = conn.cursor()
         for mblog in mblogs:
-            topic_url = mblog['topic_url']
-            xhr_url = mblog['xhr_url']
-            if cursor.execute(insert_blog_sql,(
-                xhr_url, xhr_url, theme, middle, mblog['date'],
-                bucketName, topic_url, mblog['mid'], mblog['u_name'],
-                mblog['u_id'], mblog['u_url'], mblog['u_img'],
-                mblog['url'], mblog['text'], mblog['sub_date'],
-                mblog.get('device', ''), mblog['reposts'], mblog['comments'], 
-                mblog['likes'],topic_url, mblog['url']
-                )):
-                print '$'*10, "1. Insert MBlog %s SUCCEED." % mblog['url']
-            if cursor.execute(insert_relation_sql, (
-                topic_url, mblog['url'], topic_url, mblog['url']
-                )):
-                print '$'*10, "2. Insert Relation %s SUCCEED." % mblog['url']
-        conn.commit(); cursor.close(); conn.close()
+            try:
+                topic_url = mblog['topic_url']
+                xhr_url = mblog['xhr_url']
+                if cursor.execute(insert_blog_sql,(
+                    xhr_url, xhr_url, theme, middle, mblog['date'],
+                    bucketName, topic_url, mblog['mid'], mblog['u_name'],
+                    mblog['u_id'], mblog['u_url'], mblog['u_img'],
+                    mblog['url'], mblog['text'], mblog['sub_date'],
+                    mblog.get('device', ''), mblog['reposts'], mblog['comments'],
+                    mblog['likes'],topic_url, mblog['url']
+                    )):
+                    conn.commit()
+                    print '$'*10, "1. Insert MBlog %s SUCCEED." % mblog['url']
+                if cursor.execute(insert_relation_sql, (
+                    topic_url, mblog['url'], topic_url, mblog['url']
+                    )):
+                    conn.commit()
+                    print '$'*10, "2. Insert Relation %s SUCCEED." % mblog['url']
+            except Exception as e:
+                traceback.print_exc()
+        cursor.close()
+        conn.close()
         return True
 
     @database_error_hunter
