@@ -140,5 +140,5 @@ class WeiboBlogSpider:
                 m_info['comments'] = mblog['comments_count']
                 tweet_list.append(m_info)
                 user_list.append(u_info)
-        print "Parsing done : %s." % self.uri
+        print "There are %d tweets and %d users : %s." % (len(tweet_list), len(user_list), self.uri)
         return { "blogs": tweet_list, "users": user_list , "topic": t_info, "next_url": next_url}
